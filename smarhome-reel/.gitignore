@@ -1,3 +1,5 @@
 out/sheet/
-out/*.mp4
+out/a/
+out/images/
 assets/raw/*.png
+ref1/*.mp4

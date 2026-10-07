@@ -11,7 +11,7 @@ const W = { '916': 1080, '11': 1080, '169': 1920 }[fmt], H = { '916': 1920, '11'
 const b = await chromium.launch();
 const p = await b.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
 p.on('pageerror', e => console.error('PAGEERR', e.message));
-await p.goto(`http://localhost:${port}/comp.html?f=${fmt}`); await p.evaluate(() => window.ready);
+await p.goto(`http://localhost:${port}/${process.env.PAGE || "comp.html"}?f=${fmt}`); await p.evaluate(() => window.ready);
 if (mode === 'frames') {
   for (const [i, t] of times.split(',').entries()) { await p.evaluate(t => seek(t), +t); await p.waitForTimeout(60); await p.screenshot({ path: outPath.replace('%d', i) }); }
 } else {
