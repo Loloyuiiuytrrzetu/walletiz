@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Smar Home Reel</title>
+<link rel="stylesheet" href="assets/fonts/local.css">
+<style>
+  :root { --bg:#020201; --ivory:#f9f4ee; --gold:#f3ba25; --muted:#9b9189; --border:#25211d;
+          --grad:linear-gradient(135deg,#f9c718,#d79628); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); overflow:hidden; }
+  #stage { position:relative; overflow:hidden; background:var(--bg); font-family:Inter, sans-serif; color:var(--ivory); }
+  .abs { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform, opacity; }
+  .sg { font-family:"Space Grotesk", sans-serif; font-weight:700; letter-spacing:-0.045em; line-height:.92; white-space:nowrap; }
+  .gold { background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; font-style:italic; padding-right:.12em; }
+  .eyebrow { font-family:Inter; font-weight:500; letter-spacing:.3em; text-transform:uppercase; white-space:nowrap; display:flex; align-items:center; gap:.9em; }
+  .eyebrow i { display:block; height:2px; background:var(--grad); width:2.4em; }
+  .eyebrow span { background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .screen { overflow:hidden; background:#000; transform-origin:50% 50%; }
+  .screen img { position:absolute; left:0; top:0; display:block; }
+  .layer { position:absolute; left:0; top:0; }
+  #grain { position:absolute; inset:0; pointer-events:none; mix-blend-mode:overlay; opacity:.16; }
+  #vignette { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,.55) 100%); }
+  .ripple { position:absolute; border-radius:50%; border:3px solid var(--gold); transform:translate(-50%,-50%); opacity:0; }
+  .word-mask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .12em; margin-bottom:-.12em; }
+  .word-mask > span { display:inline-block; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow" class="abs" style="width:100%;height:100%;"></div>
+
+  <!-- 1 HOOK: kinetic type (our typography, site fonts) -->
+  <div id="hook" class="abs">
+    <div class="sg hk" id="hk0">Construire&nbsp;?</div>
+    <div class="sg hk" id="hk1">Trop</div>
+    <div class="sg hk" id="hk2">long.</div>
+    <div class="sg hk" id="hk3">Trop</div>
+    <div class="sg hk gold" id="hk4">cher.</div>
+  </div>
+  <div id="hookbar" class="abs" style="height:6px;background:var(--grad)"></div>
+
+  <!-- feature labels -->
+  <div id="labels"></div>
+
+  <!-- SCREEN: real captured UI -->
+  <div id="screenWrap" class="abs">
+    <div id="urlpill" class="abs" style="display:flex;align-items:center;gap:.6em;white-space:nowrap;font-family:Inter;font-weight:500;color:#cfc6bd;border:1px solid var(--border);background:rgba(16,12,10,.85);border-radius:999px;">
+      <span style="width:.55em;height:.55em;border-radius:50%;background:var(--gold);display:inline-block"></span>smarhome.fr
+    </div>
+    <div id="screen" class="abs screen">
+      <div id="cam" class="layer">
+        <!-- beat 2: hero assembled piece by piece -->
+        <div id="sc-hero" class="layer">
+          <img id="heroBg" src="assets/img/hero-house-C8bk-LV0.jpg">
+          <div id="heroShade" class="layer"></div>
+          <div id="heroPieces" class="layer"></div>
+          <img id="heroFull">
+        </div>
+        <!-- beat 3a: dimension picker -->
+        <div id="sc-dim" class="layer"><div id="dimScroll" class="layer"><img id="r18"><img id="r37h"><img id="r37"></div></div>
+        <!-- beat 3b: plan lightbox -->
+        <div id="sc-lb" class="layer"><img id="lbBefore"><img id="lbHover"><img id="lbOpen"></div>
+        <!-- beat 3c: assistant chat -->
+        <div id="sc-chat" class="layer"><img id="chHero"><img id="chOpen"><img id="chTyped"></div>
+      </div>
+      <div id="ripples" class="layer"></div>
+    </div>
+    <div id="frameBorder" class="abs" style="pointer-events:none;border:1.5px solid rgba(243,186,37,.28);"></div>
+  </div>
+
+  <!-- 4 METRIC -->
+  <div id="metric" class="abs" style="width:100%;height:100%;">
+    <div id="zrow1" class="abs"></div>
+    <div id="zrow2" class="abs"></div>
+    <div id="mEyebrow" class="abs eyebrow"><i></i><span>Zones disponibles</span></div>
+    <div id="mNum" class="abs sg gold" style="font-style:normal">7</div>
+    <div id="mLabel" class="abs sg" style="font-weight:600;letter-spacing:-.03em">territoires <span class="gold">couverts</span></div>
+  </div>
+
+  <!-- 5 LOGO + CTA -->
+  <div id="end" class="abs" style="width:100%;height:100%;will-change:auto">
+    <div id="logoBox" class="abs" style="overflow:hidden;mix-blend-mode:screen">
+      <img id="logo" src="assets/img/smar-home-logo.jpg" style="position:absolute;left:0;top:0;width:100%;height:100%;mix-blend-mode:screen">
+      <div id="sheen" class="abs" style="width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,226,150,.35),transparent);mix-blend-mode:screen"></div>
+    </div>
+    <img id="cta" class="abs" style="border-radius:999px">
+    <div id="ctaUrl" class="abs" style="font-family:Inter;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#cfc6bd;white-space:nowrap">smarhome.fr</div>
+  </div>
+
+  <!-- cursor (stage space) -->
+  <svg id="cursor" class="abs" viewBox="0 0 28 28" width="28" height="28" style="overflow:visible;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))">
+    <path d="M3 2 L3 22 L8.2 17.2 L11.6 25 L15 23.5 L11.7 15.9 L18.6 15.9 Z" fill="#fff" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+  </svg>
+
+  <div id="flash" class="abs" style="width:100%;height:100%;background:var(--gold);mix-blend-mode:screen;opacity:0"></div>
+  <svg id="grain" width="100%" height="100%"><filter id="gf"><feTurbulence id="turb" type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="1"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#gf)"/></svg>
+  <div id="vignette"></div>
+</div>
+
+<script>
+// ---------------------------------------------------------------- setup
+const Q = new URLSearchParams(location.search);
+const FMT = Q.get('f') || '916';
+const W = { '916': 1080, '11': 1080, '169': 1920 }[FMT], H = { '916': 1920, '11': 1080, '169': 1080 }[FMT];
+const SET = FMT === '916' ? 'mobile' : 'desktop';
+const UI = `assets/ui/${SET}/`;
+const $ = id => document.getElementById(id);
+const stage = $('stage'); stage.style.width = W + 'px'; stage.style.height = H + 'px';
+const U = Math.min(W, H) / 1080;
+
+// easing
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const E = {
+  lin: x => x,
+  out3: x => 1 - Math.pow(1 - x, 3),
+  out5: x => 1 - Math.pow(1 - x, 5),
+  in3: x => x * x * x,
+  io3: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  io5: x => x < .5 ? 16 * Math.pow(x, 5) : 1 - Math.pow(-2 * x + 2, 5) / 2,
+  back: x => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  expo: x => x === 1 ? 1 : 1 - Math.pow(2, -10 * x),
+  elastic: x => x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - .75) * (2 * Math.PI) / 3) + 1,
+};
+const k = (t, a, b, e = E.out3) => e(clamp((t - a) / (b - a)));
+const mix = (a, b, p) => a + (b - a) * p;
+const set = (el, o) => { for (const p in o) el.style[p] = o[p]; };
+const tf = (el, x, y, s = 1, extra = '') => el.style.transform = `translate(${x}px,${y}px) scale(${s}) ${extra}`;
+
+// ---------------------------------------------------------------- data
+let L;
+async function load() {
+  L = await (await fetch(UI + 'layout.json')).json();
+  return L;
+}
+
+// screen geometry per format
+const VW = SET === 'mobile' ? 430 : 1440, VH = SET === 'mobile' ? 932 : 900;
+const G = {
+  '916': { s: 1.6, cx: 540, cy: 1150 },
+  '11':  { s: 0.64, cx: 540, cy: 640 },
+  '169': { s: 0.88, cx: 1215, cy: 560 },
+}[FMT];
+const SW = VW * G.s, SH = VH * G.s;
+
+function img(id, file, w, h) { const el = $(id); el.src = UI + file + '.png'; if (w) el.style.width = w + 'px'; if (h) el.style.height = h + 'px'; return el; }
+
+function build() {
+  // screen box
+  const sw = $('screenWrap'), sc = $('screen');
+  set(sc, { width: VW + 'px', height: VH + 'px', borderRadius: (SET === 'mobile' ? 44 : 18) + 'px' });
+  set($('frameBorder'), { width: VW + 'px', height: VH + 'px', borderRadius: (SET === 'mobile' ? 44 : 18) + 'px' });
+  set($('urlpill'), { fontSize: (SET === 'mobile' ? 13 : 15) + 'px', padding: '.45em 1em' });
+  for (const id of ['sc-hero', 'sc-dim', 'sc-lb', 'sc-chat', 'cam', 'ripples']) set($(id), { width: VW + 'px', height: VH + 'px' });
+
+  // hero (beat 2): real bg photo + site gradient, then real transparent text layers placed at real coords
+  set($('heroBg'), { width: VW + 'px', height: VH + 'px', objectFit: 'cover' });
+  set($('heroShade'), { width: VW + 'px', height: VH + 'px', background: 'linear-gradient(to bottom, rgba(2,2,1,.6), rgba(2,2,1,.3), rgba(2,2,1,1))' });
+  img('heroFull', 'hero-full', VW, VH);
+  const pieces = $('heroPieces');
+  const add = (name) => { if (!L[name]) return null; const r = L[name]; const e = document.createElement('img'); e.src = UI + name + '.png';
+    e.className = 'layer'; set(e, { width: r.w + 'px', height: r.h + 'px' }); e.dataset.x = r.x; e.dataset.y = r.y; pieces.appendChild(e); return e; };
+  window.HP = { words: [] };
+  HP.logo = add('header-logo'); HP.nav = add('nav'); HP.lang = add('lang'); HP.contact = add('btn-contact');
+  if (SET === 'mobile') HP.header = add('header');
+  HP.eyebrow = add('hero-eyebrow');
+  for (let i = 0; i < L.heroWords; i++) HP.words.push(add('hero-w' + i));
+
+  // dimension picker: section screenshots, aligned so the size buttons sit at the same place in every state
+  const secW = VW;
+  for (const [id, f] of [['r18', 'rosan-18'], ['r37h', 'rosan-37-hover'], ['r37', 'rosan-37']]) img(id, f, secW);
+  // lightbox + chat are viewport screenshots
+  img('lbBefore', 'lb-before', VW, VH); img('lbHover', 'lb-hover', VW, VH); img('lbOpen', 'lb-open', VW, VH);
+  img('chHero', 'hero-full', VW, VH); img('chOpen', 'chat-open', VW, VH); img('chTyped', 'chat-typed', VW, VH);
+
+  // labels
+  const labels = [
+    { n: '01', eb: 'Nos modèles', a: 'Choisissez', b: 'votre', c: 'dimension.' },
+    { n: '02', eb: 'Plans & photos', a: 'Explorez', b: 'chaque', c: 'plan.' },
+    { n: '03', eb: 'Assistant Smar Home', a: 'Une réponse,', b: '', c: 'en ligne.' },
+  ];
+  const LS = { '916': 104, '11': 70, '169': 96 }[FMT];
+  window.LBL = labels.map((d, i) => {
+    const box = document.createElement('div'); box.className = 'abs'; box.style.width = (FMT === '169' ? 640 : W - 2 * 70 * U) + 'px';
+    const eb = document.createElement('div'); eb.className = 'eyebrow'; eb.style.fontSize = (FMT === '169' ? 18 : 22 * U + 4) + 'px';
+    eb.innerHTML = `<i></i><span>${d.n} · ${d.eb}</span>`; box.appendChild(eb);
+    const h = document.createElement('div'); h.className = 'sg'; h.style.fontSize = LS + 'px'; h.style.marginTop = '.32em';
+    const words = [d.a, d.b].filter(Boolean).join(' ').split(' ').map(w => `<span class="word-mask"><span>${w}</span></span>`).join(' ');
+    h.innerHTML = (FMT === '169' ? words.replace(/<\/span><\/span> (?=[^]*$)/, '</span></span><br>') : words) + (FMT !== '11' ? '<br>' : ' ') + `<span class="word-mask"><span class="gold">${d.c}</span></span>`;
+    box.appendChild(h); $('labels').appendChild(box);
+    return { box, eb, ebLine: eb.querySelector('i'), ebText: eb.querySelector('span'), words: [...h.querySelectorAll('.word-mask > span')] };
+  });
+
+  // metric zones: real zone crops (site marquee), two rows
+  const zr = [$('zrow1'), $('zrow2')];
+  zr.forEach((row, ri) => { set(row, { display: 'flex', alignItems: 'center', gap: 60 + 'px', whiteSpace: 'nowrap', height: '150px' });
+    for (let rep = 0; rep < 3; rep++) for (let i = 1; i <= 7; i++) {
+      const z = document.createElement('img'); z.src = UI + `zone-${((i + ri * 3 - 1) % 7) + 1}.png`; z.style.height = (SET === 'mobile' ? 64 : 92) + 'px'; row.appendChild(z);
+      const st = document.createElement('img'); st.src = UI + 'zone-star.png'; st.style.height = '26px'; row.appendChild(st);
+    } });
+
+  // CTA: real "Demander un devis" button crop
+  $('cta').src = UI + 'btn-devis.png';
+}
+
+// ---------------------------------------------------------------- layout helpers
+function fitText(el, maxW, maxH) { el.style.fontSize = '100px'; const r = el.getBoundingClientRect(); const s = Math.min(maxW / r.width, maxH / r.height); el.style.fontSize = (100 * s) + 'px'; return el.getBoundingClientRect(); }
+
+let HK;
+function layoutHook() {
+  const ws = ['hk0', 'hk1', 'hk2', 'hk3', 'hk4'].map($);
+  ws.forEach(w => { w.style.position = 'absolute'; w.style.transformOrigin = '50% 60%'; });
+  const maxW = W * (FMT === '169' ? 0.8 : 0.88);
+  const lineH = FMT === '916' ? 300 : FMT === '11' ? 230 : 250;
+  const r0 = fitText(ws[0], maxW, lineH * 1.1);
+  const fs = parseFloat(ws[0].style.fontSize) * (FMT === '916' ? 1.32 : 1.18);
+  [1, 2, 3, 4].forEach(i => ws[i].style.fontSize = fs + 'px');
+  const rw = ws.map(w => w.getBoundingClientRect());
+  const gap = fs * 0.22;
+  const l2 = rw[1].width + gap + rw[2].width, l3 = rw[3].width + gap + rw[4].width;
+  const top = H / 2 - (r0.height + fs * 1.85) / 2 - (FMT === '916' ? 40 : 0);
+  HK = [
+    { el: ws[0], x: (W - rw[0].width) / 2, y: top },
+    { el: ws[1], x: (W - l2) / 2, y: top + r0.height + fs * .05 },
+    { el: ws[2], x: (W - l2) / 2 + rw[1].width + gap, y: top + r0.height + fs * .05 },
+    { el: ws[3], x: (W - l3) / 2, y: top + r0.height + fs * .97 },
+    { el: ws[4], x: (W - l3) / 2 + rw[3].width + gap, y: top + r0.height + fs * .97 },
+  ];
+  if (FMT === '916') {
+    let y = 150; HK = [];
+    ws.forEach((w, i) => { const r = fitText(w, W * (i === 0 ? .9 : .84), i === 0 ? 220 : 330); HK.push({ el: w, x: (W - r.width) / 2 + (i % 2 ? -20 : 20) * (i > 0), y }); y += r.height * .96 + 8; });
+    const off = (H - (y - 150)) / 2 - 150 - 30; HK.forEach(h => h.y += off);
+  }
+  HK.forEach(h => { const r = h.el.getBoundingClientRect(); h.w = r.width; h.h = r.height; });
+}
+
+function layoutLabels() {
+  LBL.forEach(l => {
+    if (FMT === '169') { l.x = 90; l.y = 330; }
+    else if (FMT === '916') { l.x = 70; l.y = 90; }
+    else { l.x = 70; l.y = 70; }
+  });
+}
+
+// screen-space -> stage-space for a point inside the captured viewport, given camera
+let CAM = { s: 1, fx: VW / 2, fy: VH / 2 }, SCR = { x: 0, y: 0, s: G.s, rx: 0, ry: 0 };
+function toStage(px, py) {
+  // camera: scale around focus (fx,fy) inside screen; then screen placed at SCR with scale
+  const cx = (px - CAM.fx) * CAM.s + VW / 2, cy = (py - CAM.fy) * CAM.s + VH / 2;
+  return [SCR.x + (cx - VW / 2) * SCR.s + VW * SCR.s / 2, SCR.y + (cy - VH / 2) * SCR.s + VH * SCR.s / 2];
+}
+
+// ---------------------------------------------------------------- timeline
+const T = { hook: 0, prod: 3.0, f1: 6.5, f2: 9.5, f3: 12.5, metric: 15.5, end: 17.5, dur: 20 };
+// clicks used both by visuals and by the audio score (exported to window for render script)
+const CLICKS = { f1: 7.75, f2: 10.8, f3a: 13.4, f3b: 14.25, f3c: 15.3, end: 19.0 };
+window.TIMELINE = { T, CLICKS };
+
+function cursorAt(t, keys) {
+  // keys: [[t, x, y]] in stage coords (functions allowed); returns eased position
+  if (t <= keys[0][0]) return [keys[0][1], keys[0][2]];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const [t0, x0, y0] = keys[i], [t1, x1, y1] = keys[i + 1];
+    if (t <= t1) { const p = E.io5(clamp((t - t0) / (t1 - t0))); // slight arc
+      const arc = Math.sin(p * Math.PI) * Math.hypot(x1 - x0, y1 - y0) * 0.12;
+      const nx = -(y1 - y0), ny = (x1 - x0), nl = Math.hypot(nx, ny) || 1;
+      return [mix(x0, x1, p) + nx / nl * arc, mix(y0, y1, p) + ny / nl * arc]; }
+  }
+  const z = keys[keys.length - 1]; return [z[1], z[2]];
+}
+function press(t, tc) { const d = t - tc; if (d < -0.08 || d > 0.2) return 1; return d < 0 ? 1 - 0.18 * k(t, tc - .08, tc, E.out3) : 0.82 + 0.18 * k(t, tc, tc + .2, E.back); }
+
+function ripple(container, t, tc, x, y, size) {
+  const d = t - tc; let r = container.querySelector(`[data-tc="${tc}"]`);
+  if (!r) { r = document.createElement('div'); r.className = 'ripple'; r.dataset.tc = tc; container.appendChild(r); }
+  if (d < 0 || d > .6) { r.style.opacity = 0; return; }
+  const p = E.out3(d / .6); set(r, { left: x + 'px', top: y + 'px', width: size * (0.3 + p * 1.7) + 'px', height: size * (0.3 + p * 1.7) + 'px', opacity: (1 - p) });
+}
+
+function center(r) { return [r.x + r.w / 2, r.y + r.h / 2]; }
+
+function seek(t) {
+  document.querySelectorAll('.ripple').forEach(r => r.style.opacity = 0);
+  // global bg glow pulses on the beat (120 BPM = .5s)
+  const beat = (t % .5) / .5, pulse = Math.exp(-beat * 6) * (t > 3 && t < 17.5 ? 1 : .4);
+  $('glow').style.background = `radial-gradient(ellipse at 50% ${FMT === '916' ? 60 : 55}%, rgba(243,186,37,${0.07 + pulse * .06}) 0%, rgba(243,186,37,0) 60%)`;
+  $('turb').setAttribute('seed', 1 + Math.floor(t * 24) % 50);
+
+  // ================= 1 HOOK (0 - 3)
+  const hookOn = t < T.prod + .05;
+  $('hook').style.display = hookOn ? 'block' : 'none';
+  const hits = [0.0, 1.0, 1.25, 2.0, 2.25];
+  if (hookOn) {
+    // zoom-through exit
+    const ex = k(t, 2.62, 3.0, E.in3);
+    const g = $('hook'); set(g, { width: W + 'px', height: H + 'px', transformOrigin: `${HK[4].x + HK[4].w * .35}px ${HK[4].y + HK[4].h * .5}px`,
+      transform: `scale(${1 + ex * 14})`, filter: `blur(${ex * 6}px)`, opacity: 1 - k(t, 2.85, 3.0) });
+    HK.forEach((h, i) => {
+      const p = k(t, hits[i] - .02, hits[i] + .32, E.out5);
+      const s = mix(i === 0 ? 2.4 : 1.9, 1, p);
+      const blur = (1 - k(t, hits[i], hits[i] + .14)) * 14;
+      // previous lines get pushed back on later hits
+      let dim = 1; hits.forEach((ht, j) => { if (j > i && j % 2 === 1) dim -= 0.18 * k(t, ht, ht + .25); });
+      const shake = i === 0 ? Math.sin(t * 90) * 6 * Math.exp(-(t - 0) * 8) : 0;
+      set(h.el, { left: h.x + 'px', top: h.y + 'px', opacity: t < hits[i] - .02 ? 0 : Math.min(1, p * 3) * dim,
+        transform: `translate(${shake}px,${(1 - p) * 30}px) scale(${s}) skewX(${(1 - p) * -12}deg)`, filter: `blur(${blur}px)` });
+    });
+    // underline bar sweeps under "cher."
+    const bp = k(t, 2.3, 2.6, E.out5);
+    set($('hookbar'), { display: 'block', left: HK[4].x + 'px', top: (HK[4].y + HK[4].h * .98) + 'px', width: HK[4].w * bp * .92 + 'px', opacity: 1 - k(t, 2.7, 2.85) });
+  } else $('hookbar').style.display = 'none';
+  // flash on drop
+  $('flash').style.opacity = Math.max(0, 0.55 * (1 - k(t, 2.95, 3.35, E.out3)) * (t >= 2.95 ? 1 : 0)) + (t > T.end - .05 && t < T.end + .3 ? .25 * (1 - k(t, T.end - .05, T.end + .3)) : 0);
+
+  // ================= SCREEN (3 - 15.5)
+  const scrOn = t >= T.prod && t < T.metric + .5;
+  const sw = $('screenWrap'); sw.style.display = scrOn ? 'block' : 'none';
+  // which scene
+  const scene = t < T.f1 ? 'hero' : t < T.f2 ? 'dim' : t < T.f3 ? 'lb' : 'chat';
+  for (const s of ['hero', 'dim', 'lb', 'chat']) $('sc-' + s).style.display = s === scene ? 'block' : 'none';
+
+  if (scrOn) {
+    // screen entrance / exit and per-beat whip transitions
+    const ent = k(t, T.prod, T.prod + .7, E.out5);
+    const exit = k(t, T.metric - .15, T.metric + .45, E.in3);
+    let s = G.s * mix(0.55, 1, ent) * mix(1, 0.6, exit);
+    let rx = mix(28, 0, ent) + exit * -20, ry = 0;
+    let oy = mix(H * .25, 0, ent) + exit * -H * .1;
+    // whip between features: slide old up, new from below with blur
+    let whipBlur = 0;
+    for (const tb of [T.f1, T.f2, T.f3]) {
+      const a = k(t, tb - .25, tb, E.in3), b = 1 - k(t, tb, tb + .35, E.out5);
+      if (t >= tb - .25 && t < tb) { oy -= a * H * .9; whipBlur = a * 20; }
+      if (t >= tb && t < tb + .35) { oy += b * H * .9; whipBlur = b * 20; }
+    }
+    // gentle idle float
+    ry += Math.sin(t * 1.3) * 2.2; rx += Math.cos(t * 1.1) * 1.5;
+    if (FMT === '169') ry += -6;
+    SCR = { s, x: G.cx - VW * s / 2, y: G.cy - VH * s / 2 + oy };
+    set(sw, { transform: `translate(${SCR.x}px,${SCR.y}px)`, opacity: 1 - k(t, T.metric + .1, T.metric + .45), filter: whipBlur ? `blur(${whipBlur}px)` : 'none' });
+    const persp = `perspective(${2400}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    for (const el of [$('screen'), $('frameBorder')]) set(el, { transformOrigin: '0 0', transform: `scale(${s}) ${persp}` });
+    set($('screen'), { boxShadow: `0 ${40 / s}px ${120 / s}px rgba(0,0,0,.7), 0 0 ${80 / s}px rgba(243,186,37,.10)` });
+    const pill = $('urlpill'); set(pill, { transform: `translate(${VW * s / 2}px, ${-34 - 16 * U}px) translateX(-50%) scale(${Math.max(1, s * 1.1)})`, transformOrigin: '50% 50%', opacity: ent * (1 - exit) });
+  }
+
+  // camera (zoom inside the screen) default
+  CAM = { s: 1, fx: VW / 2, fy: VH / 2 };
+
+  // ---------- beat 2: hero assembles
+  if (scene === 'hero' && scrOn) {
+    const t0 = T.prod;
+    const bgp = k(t, t0 + .1, t0 + .9, E.out3);
+    set($('heroBg'), { opacity: bgp, transform: `scale(${mix(1.25, 1.04, k(t, t0, T.f1, E.out3))})`, transformOrigin: '60% 50%' });
+    $('heroShade').style.opacity = bgp;
+    const P = (el, ts, dx, dy, dur = .5, e = E.out5) => { if (!el) return; const p = k(t, ts, ts + dur, e);
+      set(el, { opacity: clamp(p * 2), transform: `translate(${+el.dataset.x + dx * (1 - p)}px, ${+el.dataset.y + dy * (1 - p)}px)` }); };
+    if (HP.header) P(HP.header, t0 + .45, 0, -70);
+    P(HP.logo, t0 + .45, 0, -60); P(HP.nav, t0 + .55, 0, -60); P(HP.lang, t0 + .65, 0, -60); P(HP.contact, t0 + .72, 60, 0, .6, E.back);
+    if (HP.eyebrow) { const p = k(t, t0 + .7, t0 + 1.1, E.out3); set(HP.eyebrow, { opacity: p > 0 ? 1 : 0, clipPath: `inset(0 ${100 - p * 100}% 0 0)`, transform: `translate(${HP.eyebrow.dataset.x}px,${HP.eyebrow.dataset.y}px)` }); }
+    HP.words.forEach((w, i) => {
+      const ts = t0 + .85 + i * .12, p = k(t, ts, ts + .55, i === 5 ? E.back : E.out5);
+      const isLast = i === HP.words.length - 1;
+      set(w, { opacity: clamp(p * 2.5), transform: `translate(${+w.dataset.x}px, ${+w.dataset.y + (1 - p) * (isLast ? 30 : 90)}px) rotate(${(1 - p) * (isLast ? 0 : 7)}deg)`, transformOrigin: '0 100%',
+        clipPath: isLast ? `inset(0 ${100 - p * 100}% 0 0)` : 'none' });
+    });
+    // lock to the exact real screenshot once assembled
+    $('heroFull').style.opacity = k(t, t0 + 2.4, t0 + 2.8);
+    // slow camera push on the headline
+    CAM = { s: mix(1, 1.08, k(t, t0 + 1, T.f1, E.io3)), fx: SET === 'mobile' ? VW * .45 : VW * .42, fy: SET === 'mobile' ? VH * .72 : VH * .6 };
+  }
+
+  // ---------- beat 3a: dimension picker (real click on "37 m²")
+  let cur = null, curScale = 1;
+  if (scene === 'dim') {
+    const t0 = T.f1, tc = CLICKS.f1;
+    const b37 = L.rosan_b37, sec18 = L['rosan-18'];
+    const relY = b37.y - sec18.y; // button y inside section image
+    const restScroll = relY - (SET === 'mobile' ? 230 : 190);
+    const scroll = restScroll + k(t, tc + .5, T.f2 - .3, E.io5) * (SET === 'mobile' ? 330 : 360);
+    $('dimScroll').style.transform = `translateY(${-scroll}px)`;
+    $('r37h').style.opacity = t >= tc - .25 ? 1 : 0;
+    $('r37').style.opacity = k(t, tc + .04, tc + .2);
+    const bc = [b37.x + b37.w / 2, relY + b37.h / 2 - scroll];
+    const zin = k(t, t0 + .2, tc - .1, E.io3), zout = k(t, tc + .35, tc + 1.0, E.io3);
+    CAM = { s: 1 + 0.38 * zin * (1 - zout), fx: mix(VW / 2, bc[0], zin * (1 - zout)), fy: mix(VH / 2, bc[1], zin * (1 - zout)) };
+    const end = toStage(bc[0], bc[1]);
+    cur = cursorAt(t, [[t0 + .3, W * .95, H * 1.05], [tc - .2, end[0] + 6, end[1] + 8], [tc + .6, end[0] + 6, end[1] + 8], [T.f2, end[0] + W * .25, end[1] + H * .1]]);
+    curScale = press(t, tc);
+    ripple($('ripples'), t, tc, bc[0], bc[1], 120);
+  }
+
+  // ---------- beat 3b: plan lightbox (real click on "Plan")
+  if (scene === 'lb') {
+    const t0 = T.f2, tc = CLICKS.f2, pb = L.planBtn;
+    const pc = [pb.x + pb.w * (SET === 'mobile' ? .5 : .28), pb.y + pb.h * .5];
+    $('lbHover').style.opacity = t >= tc - .35 ? 1 : 0;
+    const op = k(t, tc + .05, tc + .45, E.out5);
+    // lightbox grows out of the clicked thumbnail (clip from the button rect to full frame)
+    const ins = [pb.y * (1 - op), (VW - pb.x - pb.w) * (1 - op), (VH - pb.y - pb.h) * (1 - op), pb.x * (1 - op)];
+    set($('lbOpen'), { opacity: t >= tc + .05 ? 1 : 0, clipPath: `inset(${ins[0]}px ${ins[1]}px ${ins[2]}px ${ins[3]}px round ${16 * (1 - op)}px)` });
+    const zi = k(t, t0 + .1, tc - .15, E.io3), zz = k(t, tc + .5, T.f3 - .2, E.io3);
+    const fx = SET === 'mobile' ? VW * .7 : VW * .72, fy = SET === 'mobile' ? VH * .5 : VH * .45;
+    CAM = { s: 1 + .18 * zi * (1 - op) + (SET === 'mobile' ? 1.3 : .32) * zz, fx: mix(mix(VW / 2, pc[0], zi * (1 - op)), fx, zz), fy: mix(mix(VH / 2, pc[1], zi * (1 - op)), fy, zz) };
+    const end = toStage(pc[0], pc[1]);
+    cur = cursorAt(t, [[t0 + .25, W * .1, H * 1.05], [tc - .25, end[0], end[1]], [tc + .5, end[0], end[1]], [T.f3, end[0] + W * .5, end[1] + H * .3]]);
+    curScale = press(t, tc);
+    ripple($('ripples'), t, tc, pc[0], pc[1], 140);
+  }
+
+  // ---------- beat 3c: chat assistant (real click, real typing)
+  if (scene === 'chat') {
+    const t0 = T.f3, ta = CLICKS.f3a, tb = CLICKS.f3b, tcc = CLICKS.f3c;
+    const cb = center(L.chatBtn), ci = L.chatInput, cs = center(L.chatSend), cp = L.chatPanel;
+    const op = k(t, ta + .03, ta + .5, E.out5);
+    const rad = Math.hypot(VW, VH) * 1.1 * op;
+    set($('chOpen'), { opacity: t > ta ? 1 : 0, clipPath: `circle(${rad}px at ${cb[0]}px ${cb[1]}px)` });
+    // typing: reveal the real typed-state screenshot across the input field, left to right
+    const ty = k(t, tb + .1, tcc - .3, E.lin);
+    const steps = Math.floor(ty * 34) / 34; // character-ish steps
+    const revealR = ci.x + 14 + (ci.w - 20) * steps;
+    set($('chTyped'), { opacity: t > tb + .1 ? 1 : 0, clipPath: `inset(${ci.y}px ${VW - revealR}px ${VH - ci.y - ci.h}px ${ci.x}px)` });
+    const zi = k(t, ta + .15, ta + .9, E.io3);
+    const pcx = cp.x + cp.w / 2, pcy = cp.y + cp.h * .62;
+    const zz = SET === 'mobile' ? 1.12 : 1.75;
+    CAM = { s: 1 + (zz - 1) * zi, fx: mix(VW / 2, pcx, zi), fy: mix(VH / 2, pcy, zi) };
+    const pB = toStage(...cb), pI = toStage(ci.x + ci.w * .4, ci.y + ci.h / 2), pS = toStage(...cs);
+    // during the camera move the cursor follows targets in screen space
+    cur = cursorAt(t, [[t0 + .2, W * .35, H * 1.05], [ta - .2, pB[0], pB[1]], [ta + .55, pB[0], pB[1]], [tb - .15, pI[0], pI[1]], [tb + .7, pI[0], pI[1]], [tcc - .15, pS[0], pS[1]], [T.metric, pS[0], pS[1]]]);
+    curScale = Math.min(press(t, ta), press(t, tb), press(t, tcc));
+    ripple($('ripples'), t, ta, cb[0], cb[1], 110); ripple($('ripples'), t, tcc, cs[0], cs[1], 80);
+  }
+
+  // apply camera
+  if (scrOn) set($('cam'), { transformOrigin: '0 0', transform: `translate(${VW / 2}px,${VH / 2}px) scale(${CAM.s}) translate(${-CAM.fx}px,${-CAM.fy}px)` });
+  $('ripples').style.transform = $('cam').style.transform;
+
+  // ---------- labels for features
+  LBL.forEach((l, i) => {
+    const tb = [T.f1, T.f2, T.f3][i], te = tb + 3;
+    const on = t >= tb - .05 && t < te; l.box.style.display = on ? 'block' : 'none'; if (!on) return;
+    const out = k(t, te - .3, te, E.in3);
+    set(l.box, { transform: `translate(${l.x}px,${l.y - out * 60}px)`, opacity: 1 - out });
+    l.ebLine.style.width = (2.4 * k(t, tb + .05, tb + .45, E.out5)) + 'em';
+    l.ebText.style.clipPath = `inset(0 ${100 - 100 * k(t, tb + .15, tb + .6, E.out3)}% 0 0)`;
+    l.words.forEach((w, j) => { const p = k(t, tb + .2 + j * .08, tb + .75 + j * .08, E.out5); w.style.transform = `translateY(${(1 - p) * 110}%) rotate(${(1 - p) * 6}deg)`; });
+  });
+
+  // ================= 4 METRIC (15.5 - 17.5)
+  const mOn = t >= T.metric - .05 && t < T.end + .4;
+  $('metric').style.display = mOn ? 'block' : 'none';
+  if (mOn) {
+    const t0 = T.metric, out = k(t, T.end - .1, T.end + .3, E.in3);
+    const n = Math.min(7, Math.max(1, 1 + Math.floor(k(t, t0 + .1, t0 + .8, E.lin) * 6.999)));
+    const num = $('mNum'); num.textContent = n;
+    const big = FMT === '916' ? 820 : FMT === '11' ? 620 : 640;
+    num.style.fontSize = big + 'px';
+    const slam = k(t, t0 + .8, t0 + 1.15, E.back);
+    const ns = (n < 7 ? 0.82 + 0.04 * Math.sin(t * 60) : mix(1.25, 1, slam)) * (1 + out * 2.5);
+    const nr = { w: big * .62, h: big * .92 };
+    const ncx = FMT === '169' ? W * .3 : W / 2, ncy = FMT === '916' ? H * .44 : FMT === '11' ? H * .43 : H * .48;
+    set(num, { transform: `translate(${ncx - nr.w / 2}px,${ncy - nr.h / 2}px) scale(${ns})`, transformOrigin: '50% 50%', opacity: k(t, t0, t0 + .15) * (1 - out), filter: `blur(${out * 10}px)` });
+    const lab = $('mLabel'); lab.style.fontSize = (FMT === '169' ? 104 : FMT === '916' ? 108 : 86) + 'px';
+    const lr = lab.getBoundingClientRect();
+    const lp = k(t, t0 + .85, t0 + 1.3, E.out5);
+    const lx = FMT === '169' ? W * .52 : (W - lr.width / (lab._s || 1)) / 2;
+    const ly = FMT === '169' ? H * .5 : ncy + nr.h * .5 + 10;
+    set(lab, { transform: `translate(${lx}px,${ly + (1 - lp) * 60}px)`, opacity: lp * (1 - out) });
+    const eb = $('mEyebrow'); eb.style.fontSize = (FMT === '169' ? 20 : 24) + 'px';
+    const ebr = eb.getBoundingClientRect();
+    set(eb, { transform: `translate(${FMT === '169' ? W * .52 : (W - ebr.width) / 2}px,${FMT === '169' ? H * .5 - 60 : ncy - nr.h * .55 - 20}px)`, opacity: k(t, t0 + .2, t0 + .5) * (1 - out) });
+    // real zone marquee crops drifting behind
+    const zp = (t - t0);
+    set($('zrow1'), { transform: `translate(${-200 - zp * 500}px,${FMT === '916' ? H * .14 : FMT === '11' ? -70 : H * .06}px)`, opacity: .28 * k(t, t0, t0 + .3) * (1 - out) });
+    set($('zrow2'), { transform: `translate(${-1600 + zp * 500}px,${FMT === '916' ? H * .78 : FMT === '11' ? H * .88 : H * .8}px)`, opacity: .28 * k(t, t0, t0 + .3) * (1 - out) });
+  }
+
+  // ================= 5 LOGO + CTA (17.5 - 20)
+  const eOn = t >= T.end - .05;
+  $('end').style.display = eOn ? 'block' : 'none';
+  if (eOn) {
+    const t0 = T.end;
+    const ls = FMT === '916' ? 940 : FMT === '11' ? 700 : 760;
+    const lcx = W / 2, lcy = FMT === '916' ? H * .42 : FMT === '11' ? H * .42 : H * .43;
+    const p = k(t, t0, t0 + .9, E.out5);
+    const lb = $('logoBox');
+    set(lb, { width: ls + 'px', height: ls + 'px', transformOrigin: '50% 50%', transform: `translate(${lcx - ls / 2}px,${lcy - ls / 2}px) scale(${mix(1.35, 1, p) * (1 + .03 * k(t, t0 + .9, T.dur, E.lin))})`,
+      clipPath: `inset(${(1 - p) * 50}% 0 ${(1 - p) * 50}% 0)`, filter: `blur(${(1 - k(t, t0, t0 + .5)) * 8}px)` });
+    set($('sheen'), { transform: `translateX(${mix(-ls * .5, ls * 1.3, k(t, t0 + .6, t0 + 1.4, E.io3))}px)` });
+    // CTA: real "Demander un devis" button, clicked
+    const cta = $('cta'); const cw = (FMT === '916' ? 540 : 420), ch = cw * (84 / 340);
+    const cy = lcy + ls * .34;
+    const cp = k(t, t0 + .7, t0 + 1.2, E.back);
+    const cs = cp * press(t, CLICKS.end);
+    set(cta, { width: cw + 'px', height: ch + 'px', transformOrigin: '50% 50%', transform: `translate(${lcx - cw / 2}px,${cy}px) scale(${cs})`, opacity: clamp(cp * 3),
+      filter: t > CLICKS.end ? `drop-shadow(0 0 ${30 * (1 - k(t, CLICKS.end, CLICKS.end + .6))}px rgba(243,186,37,.9))` : 'none' });
+    const url = $('ctaUrl'); url.style.fontSize = (FMT === '916' ? 30 : 24) + 'px'; const ur = url.getBoundingClientRect();
+    set(url, { transform: `translate(${lcx - ur.width / 2}px,${cy + ch + 34}px)`, opacity: k(t, t0 + 1.1, t0 + 1.5), letterSpacing: mix(.6, .3, k(t, t0 + 1.1, t0 + 1.8, E.out3)) + 'em' });
+    const ctaC = [lcx + cw * .15, cy + ch * .55];
+    cur = cursorAt(t, [[t0 + .9, W * .85, H * 1.04], [CLICKS.end - .15, ctaC[0], ctaC[1]], [T.dur, ctaC[0] + 4, ctaC[1] + 4]]);
+    curScale = press(t, CLICKS.end);
+    if (t < t0 + .9) cur = null;
+  }
+
+  // ---------- cursor
+  const c = $('cursor');
+  if (cur) { const cz = (FMT === '169' ? 1.8 : FMT === '916' ? 2.3 : 1.6) * curScale; set(c, { display: 'block', transform: `translate(${cur[0] - 3 * cz}px,${cur[1] - 2 * cz}px) scale(${cz})` }); }
+  else c.style.display = 'none';
+}
+
+window.ready = (async () => {
+  await load(); build(); await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  layoutHook(); layoutLabels();
+  seek(+(Q.get('t') || 0));
+  return true;
+})();
+window.seek = seek;
+</script>
+</body>
+</html>
