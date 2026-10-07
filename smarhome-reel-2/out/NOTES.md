@@ -40,4 +40,4 @@ Coral `#FF6B57`, sunshine `#FFC93C` (a close cousin of the brand gold), turquois
 - **Groove**: 120 BPM tropical / afro-house, C–G–Am–F progression with one bar per scene change. Four-on-the-floor kick, claps on 2 and 4, a swung shaker on 16ths, a conga tumbao, a bouncy off-beat bass, a pad, a steel-pan lead in a 3-3-2 soca rhythm, and marimba arpeggios from 4 s.
 - **Drop**: a half-beat break at 16.0 s, then the end-card impact at 16.5 s and a sustained steel-pan chord from 18 s.
 - **Sound effects synced to the picture**: an impact and pops on the hook; a pop cascade under the letter drop; whooshes into every flash and wipe; impacts on the cuts; slams on RAPIDE / DURABLE / TROPICAL, PRIX FIXE, 7 TERRITOIRES and the logo drop; pitched pops on the size bubbles; rising marimba notes on each pin drop; a click plus a bell "ding" on the CTA tap.
-- **Mastering**: about -14 LUFS integrated, true peak ≤ -1.5 dBTP, 0.3 s fade-out at the end.
+- **Mastering**: about -14.4 LUFS integrated, peak about -1.9 dBFS after AAC encoding, 0.3 s fade-out at the end.
