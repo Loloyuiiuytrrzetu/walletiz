@@ -11,4 +11,4 @@
 | 13.8 s | 16.9 s | Sept territoires, de Saint-Martin à la Guyane. | Carte 3D : les 7 territoires s'allument de Saint-Martin à la Guyane |
 | 17.0 s | 19.8 s | Obtenez votre devis dès maintenant. | Coucher de soleil, logo Smar Home, bouton « Obtenir un devis » |
 
-Sous-titres au format .srt : `smarhome-3D-soustitres.srt`. Musique seule : `music.wav` (niveau bas pour laisser la place à la voix).
+Sous-titres au format .srt : `smarhome-3D-soustitres.srt`. Musique seule : `smarhome-3D-musique.wav` (niveau bas pour laisser la place à la voix).
