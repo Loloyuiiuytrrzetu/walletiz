@@ -14,12 +14,13 @@
   .sg { font-family:"Space Grotesk", sans-serif; font-weight:700; letter-spacing:-.04em; white-space:nowrap; }
 
   /* calendar */
-  #cal { width:620px; height:760px; left:230px; top:470px; background:#ffffff; border-radius:46px; overflow:hidden; box-shadow:0 50px 120px rgba(4,40,80,.45); transform-style:preserve-3d; }
+  #cal { width:620px; height:760px; left:230px; top:470px; background:transparent; border-radius:46px; overflow:hidden; transform-style:preserve-3d; }
   #calTop { position:absolute; left:0; top:0; width:100%; height:150px; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; font-family:"Space Grotesk"; font-weight:700; font-size:54px; letter-spacing:.18em; }
   #calTop .ring { position:absolute; top:-26px; width:30px; height:72px; border-radius:16px; background:#0b3a66; }
-  #calWin { position:absolute; left:0; top:150px; width:100%; height:470px; overflow:hidden; }
+  #calWin { position:absolute; left:0; top:150px; width:100%; height:470px; overflow:hidden; background:rgba(255,255,255,.12); border-left:3px solid rgba(255,255,255,.6); border-right:3px solid rgba(255,255,255,.6); }
+  #calBottom { position:absolute; left:0; top:620px; width:100%; height:140px; background:#ffffff; }
   #calNums { position:absolute; left:0; top:0; width:100%; }
-  .num { height:470px; display:flex; align-items:center; justify-content:center; font-family:"Space Grotesk"; font-weight:700; font-size:400px; letter-spacing:-.06em; color:var(--ink); }
+  .num { height:470px; display:flex; align-items:center; justify-content:center; font-family:"Space Grotesk"; font-weight:700; font-size:400px; letter-spacing:-.06em; color:#ffffff; text-shadow:0 10px 40px rgba(0,25,60,.55); }
   #calDays { position:absolute; left:40px; right:40px; bottom:34px; height:90px; display:flex; justify-content:space-between; }
   .day { width:66px; height:90px; border-radius:16px; background:#e4f1f7; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:Inter; font-weight:700; color:var(--ink); font-size:30px; }
   .day small { font-size:17px; font-weight:600; color:#6f8ca3; }
@@ -64,6 +65,7 @@
     <div id="cal" class="a">
       <div id="calTop"><div class="ring" style="left:150px"></div><div class="ring" style="right:150px"></div>JOUR</div>
       <div id="calWin"><div id="calNums"></div></div>
+      <div id="calBottom"></div>
       <div id="calDays"></div>
     </div>
     <svg id="calRing" class="a" width="1080" height="1920" style="overflow:visible"><circle id="ringC" cx="540" cy="855" r="230" fill="none" stroke="#13b3c6" stroke-width="16" stroke-linecap="round"/></svg>
