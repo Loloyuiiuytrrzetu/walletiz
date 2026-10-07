@@ -1,0 +1,8 @@
+node_modules/
+land.geojson
+hdr/
+out/st/
+out/part*.mp4
+out/*.log
+out/*.wav
+gltest.mjs
