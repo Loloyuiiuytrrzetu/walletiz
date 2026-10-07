@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Smar Home Motion</title>
+<link rel="stylesheet" href="fonts/local.css">
+<style>
+  :root { --bg:#000; --ink:#f7f2ea; --gold:#f3ba25; --dim:#8c847a; --line:#2b2723; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1080px; height:1920px; overflow:hidden; background:var(--bg); }
+  #stage { position:absolute; inset:0; overflow:hidden; background:var(--bg); color:var(--ink); font-family:Inter, sans-serif; perspective:1600px; }
+  .a { position:absolute; left:0; top:0; transform-origin:50% 50%; }
+  .scene { position:absolute; inset:0; display:none; transform-style:preserve-3d; }
+  .sg { font-family:"Space Grotesk", sans-serif; font-weight:700; letter-spacing:-.04em; white-space:nowrap; }
+
+  /* calendar */
+  #cal { width:620px; height:760px; left:230px; top:470px; background:var(--ink); border-radius:46px; overflow:hidden; box-shadow:0 60px 140px rgba(0,0,0,.6); transform-style:preserve-3d; }
+  #calTop { position:absolute; left:0; top:0; width:100%; height:150px; background:var(--gold); display:flex; align-items:center; justify-content:center; color:#111; font-family:"Space Grotesk"; font-weight:700; font-size:54px; letter-spacing:.18em; }
+  #calTop .ring { position:absolute; top:-26px; width:30px; height:72px; border-radius:16px; background:#111; }
+  #calWin { position:absolute; left:0; top:150px; width:100%; height:470px; overflow:hidden; }
+  #calNums { position:absolute; left:0; top:0; width:100%; }
+  .num { height:470px; display:flex; align-items:center; justify-content:center; font-family:"Space Grotesk"; font-weight:700; font-size:400px; letter-spacing:-.06em; color:#111; }
+  #calDays { position:absolute; left:40px; right:40px; bottom:34px; height:90px; display:flex; justify-content:space-between; }
+  .day { width:66px; height:90px; border-radius:16px; background:#e8e1d6; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:Inter; font-weight:700; color:#111; font-size:30px; }
+  .day small { font-size:17px; font-weight:600; color:#6d655c; }
+  .day.on { background:#111; color:var(--gold); }
+  .day.on small { color:#bbb; }
+
+  /* carousel */
+  .card { position:absolute; left:0; top:0; width:340px; height:560px; border-radius:28px; background:#161412; border:2px solid var(--line); overflow:hidden; transform-style:preserve-3d; }
+  .card .ph { position:absolute; left:20px; top:20px; width:296px; height:296px; border-radius:18px; border:3px dashed #4a443d; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#6e665d; font-family:Inter; font-weight:600; font-size:24px; letter-spacing:.12em; }
+  .card .nm { position:absolute; left:24px; top:340px; font-family:"Space Grotesk"; font-weight:700; font-size:40px; color:var(--ink); }
+  .card .nm span { color:var(--gold); }
+  .card .pm { position:absolute; left:24px; top:404px; font-family:"Space Grotesk"; font-weight:700; font-size:46px; color:var(--gold); }
+  .card .pm small { font-size:24px; color:var(--dim); font-weight:600; }
+  .card .pt { position:absolute; left:24px; top:476px; font-family:Inter; font-weight:600; font-size:24px; color:var(--dim); }
+  .card .pt b { color:var(--ink); }
+  .card .sel { position:absolute; inset:0; border:6px solid var(--gold); border-radius:28px; opacity:0; }
+
+  /* placeholders */
+  .slot { position:absolute; border:3px dashed #5a534b; border-radius:30px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; color:#8a8279; font-family:Inter; font-weight:600; letter-spacing:.14em; text-transform:uppercase; text-align:center; }
+
+  /* subtitles */
+  #sub { position:absolute; left:70px; right:70px; top:1545px; text-align:center; }
+  #sub .w { display:inline-block; font-family:Inter; font-weight:800; font-size:62px; line-height:1.18; color:#fff; margin:0 .12em; text-shadow:0 4px 18px rgba(0,0,0,.85); }
+  #sub .w.cur { color:var(--gold); }
+
+  .chip { display:inline-flex; align-items:center; gap:22px; font-family:"Space Grotesk"; font-weight:700; font-size:74px; color:var(--ink); white-space:nowrap; }
+  .chip i { width:74px; height:74px; border-radius:50%; background:var(--gold); display:inline-flex; align-items:center; justify-content:center; }
+  #cta { font-family:Inter; font-weight:800; font-size:58px; color:#111; background:var(--gold); padding:.6em 1.4em; border-radius:999px; white-space:nowrap; }
+  #flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- ambient: slow gold dust -->
+  <div id="dust" class="a" style="width:1080px;height:1920px"></div>
+
+  <!-- 1. calendar -->
+  <div id="s1" class="scene">
+    <div id="cal" class="a">
+      <div id="calTop"><div class="ring" style="left:150px"></div><div class="ring" style="right:150px"></div>JOUR</div>
+      <div id="calWin"><div id="calNums"></div></div>
+      <div id="calDays"></div>
+    </div>
+    <svg id="calRing" class="a" width="1080" height="1920" style="overflow:visible"><circle id="ringC" cx="540" cy="855" r="230" fill="none" stroke="#f3ba25" stroke-width="16" stroke-linecap="round"/></svg>
+  </div>
+
+  <!-- 2. logo -->
+  <div id="s2" class="scene">
+    <img id="logo" class="a" src="img/smar-home-logo.jpg" style="width:820px;height:820px;left:130px;top:360px;mix-blend-mode:screen">
+    <div id="possible" class="a sg" style="font-size:118px;top:1230px;width:1080px;text-align:center">C’est <span style="color:var(--gold)">possible.</span></div>
+  </div>
+
+  <!-- 3. carousel -->
+  <div id="s3" class="scene">
+    <div id="choose" class="a sg" style="font-size:84px;top:300px;width:1080px;text-align:center;line-height:1.05">Choisissez votre<br><span style="color:var(--gold)">modulaire</span></div>
+    <div id="row" class="a" style="width:1080px;height:1920px;transform-style:preserve-3d"></div>
+    <div id="tapRing" class="a" style="border:5px solid var(--gold);border-radius:28px;opacity:0"></div>
+  </div>
+
+  <!-- 4. user's falling-module video goes here -->
+  <div id="s4" class="scene">
+    <div class="slot" style="left:60px;top:200px;width:960px;height:1280px;font-size:30px">
+      <svg width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="#8a8279" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="#8a8279"/></svg>
+      Emplacement vidéo<br><span style="letter-spacing:.04em;text-transform:none;font-size:26px">le modulaire tombe sur le terrain</span>
+    </div>
+  </div>
+
+  <!-- 5. guarantee -->
+  <div id="s5" class="scene">
+    <div id="gEb" class="a" style="font-family:Inter;font-weight:700;font-size:34px;letter-spacing:.32em;color:var(--gold);top:300px;width:1080px;text-align:center">NOTRE GARANTIE</div>
+    <svg id="shield" class="a" width="1080" height="1920" style="overflow:visible">
+      <path id="shP" d="M540 400 L740 470 L740 640 Q740 800 540 880 Q340 800 340 640 L340 470 Z" fill="none" stroke="#f3ba25" stroke-width="14" stroke-linejoin="round"/>
+      <path id="shC" d="M455 640 L520 705 L640 580" fill="none" stroke="#f3ba25" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div id="chips"></div>
+  </div>
+
+  <!-- 6. equipment photo burst (empty frames for now) -->
+  <div id="s6" class="scene">
+    <div id="frames"></div>
+    <div id="eqLabel" class="a sg" style="font-size:96px;top:1290px;width:1080px;text-align:center"></div>
+  </div>
+
+  <!-- 7. CTA -->
+  <div id="s7" class="scene">
+    <div id="q1" class="a sg" style="font-size:112px;top:420px;width:1080px;text-align:center">Qu’attendez-vous ?</div>
+    <div id="q2" class="a sg" style="font-size:112px;top:560px;width:1080px;text-align:center;color:var(--gold)">Contactez-nous !</div>
+    <img id="logo2" class="a" src="img/smar-home-logo.jpg" style="width:520px;height:520px;left:280px;top:700px;mix-blend-mode:screen">
+    <div id="cta" class="a">Obtenir un devis&nbsp;&nbsp;→</div>
+    <div id="ctaRip" class="a" style="border:5px solid var(--gold);border-radius:999px;opacity:0"></div>
+    <svg id="cursor" class="a" viewBox="0 0 28 28" width="28" height="28" style="overflow:visible;opacity:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))"><path d="M3 2 L3 22 L8.2 17.2 L11.6 25 L15 23.5 L11.7 15.9 L18.6 15.9 Z" fill="#fff" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div id="sub"></div>
+  <div id="flash"></div>
+</div>
+<script>
+const W = 1080, H = 1920;
+const $ = id => document.getElementById(id);
+const css = (el, o) => { for (const p in o) el.style[p] = o[p]; return el; };
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const E = { out3: x => 1 - Math.pow(1 - x, 3), out5: x => 1 - Math.pow(1 - x, 5), in3: x => x * x * x, io3: x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  io5: x => x < .5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2, back: x => { const c1 = 1.7, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+  elastic: x => x === 0 || x === 1 ? x : Math.pow(2, -10 * x) * Math.sin((x * 10 - .75) * (2 * Math.PI) / 3) + 1 };
+const k = (t, a, b, e = E.out3) => e(clamp((t - a) / (b - a)));
+const mix = (a, b, p) => a + (b - a) * p;
+let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ------------------------------------------------ timeline (seconds, locked to the edited voice)
+const T = { cal: 0, logo: 3.3, choose: 5.5, studio: 7.16, scroll: 9.15, familial: 11.38, back: 13.95, click: 14.85, video: 15.1, guar: 17.0, photos: 21.3, cta: 25.4, end: 29.5 };
+window.TIMELINE = T;
+
+// ------------------------------------------------ build
+// calendar: numbers 1..7 stacked so the column moves DOWN (next day enters from the top)
+const nums = $('calNums'); for (let d = 7; d >= 1; d--) { const n = document.createElement('div'); n.className = 'num'; n.textContent = d; nums.appendChild(n); }
+const DAYS = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
+const dayEls = DAYS.map((d, i) => { const e = document.createElement('div'); e.className = 'day'; e.innerHTML = `<small>${d}</small>${i + 1}`; $('calDays').appendChild(e); return e; });
+const ringC = $('ringC'); const ringLen = 2 * Math.PI * 230; ringC.setAttribute('stroke-dasharray', ringLen);
+
+// carousel: 6 modules from 13 m² to 75 m² (photos & prices to come)
+const MODS = [['MORÄN', 13], ['MORÄN', 18], ['ROSÄN', 18], ['MORÄN', 25], ['ROSÄN', 37], ['ROSÄN', 75]];
+const PICK = 2;                                     // the one we click (middle of the row)
+const SP = 560;                                     // spacing between cards
+const cards = MODS.map(([n, m], i) => { const c = document.createElement('div'); c.className = 'card';
+  c.innerHTML = `<div class="ph"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6e665d" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 7"/></svg>PHOTO</div>
+    <div class="nm">${n} <span>${m} m²</span></div><div class="pm">XXX € <small>/ mois</small></div><div class="pt">Prix total : <b>XX XXX €</b></div><div class="sel"></div>`;
+  $('row').appendChild(c); return c; });
+
+// guarantee chips
+const CH = [['Qualité', 18.74], ['Fiable', 19.6], ['Tout équipé', 20.24]];
+const chipEls = CH.map(([txt]) => { const d = document.createElement('div'); d.className = 'chip a';
+  d.innerHTML = `<i><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>${txt}`; $('chips').appendChild(d); return d; });
+
+// photo burst: cuts on the voice (Cuisine / Salle à manger / Climatisation / Tout est déjà là)
+const EQ = [['Cuisine', 21.34, 22.2], ['Salle à manger', 22.2, 23.16], ['Climatisation', 23.16, 24.38], ['Tout est déjà là', 24.38, 25.4]];
+const CUTS = []; EQ.forEach(([lab, a, b], gi) => { const n = gi === 3 ? 4 : 2; for (let i = 0; i < n; i++) CUTS.push({ lab, gi, a: a + (b - a) * i / n, b: a + (b - a) * (i + 1) / n, i }); });
+const frameEls = CUTS.map((c, i) => { const d = document.createElement('div'); d.className = 'slot'; css(d, { left: '90px', top: '170px', width: '900px', height: '1060px', fontSize: '30px', background: '#141210' });
+  d.innerHTML = `<svg width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="#8a8279" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 7"/></svg>Photo ${i + 1}<br><span style="letter-spacing:.04em;text-transform:none;font-size:26px">${c.lab}</span>`;
+  $('frames').appendChild(d); return d; });
+
+// gold dust (ambient depth)
+const dust = Array.from({ length: 46 }, () => { const d = document.createElement('div'); d.className = 'a'; const s = 3 + rnd() * 7;
+  css(d, { width: s + 'px', height: s + 'px', borderRadius: '50%', background: '#f3ba25' }); $('dust').appendChild(d); return { d, x: rnd() * W, y: rnd() * H, v: 20 + rnd() * 60, o: .08 + rnd() * .25, ph: rnd() * 6 }; });
+
+// subtitles (word timings from the voice)
+let WORDS = [];
+const subEl = $('sub');
+function buildSubs() {
+  // group words into short lines (max ~22 chars) for phone readability
+  const lines = []; let cur = [];
+  WORDS.forEach((w, i) => { const len = cur.reduce((s, x) => s + x[2].length + 1, 0);
+    if (cur.length && (len + w[2].length > 22 || (w[0] - cur[cur.length - 1][1]) > .45)) { lines.push(cur); cur = []; } cur.push(w);
+    if (/[.?!,]$/.test(w[2]) && len + w[2].length > 12) { lines.push(cur); cur = []; } });
+  if (cur.length) lines.push(cur);
+  return lines.map(ws => { const d = document.createElement('div'); d.style.display = 'none';
+    d.innerHTML = ws.map(w => `<span class="w">${w[2].replace(/^'/, '’')}</span>`).join('').replace(/<\/span><span class="w">([’-])/g, '</span><span class="w" style="margin-left:-.12em">$1');
+    subEl.appendChild(d); return { ws, d, els: [...d.querySelectorAll('.w')], a: ws[0][0], b: ws[ws.length - 1][1] }; });
+}
+let SUBL = [];
+function updSubs(t) {
+  SUBL.forEach((l, i) => { const next = SUBL[i + 1]; const end = next ? Math.min(next.a, l.b + .6) : l.b + .8;
+    const on = t >= l.a - .05 && t < end; l.d.style.display = on ? 'block' : 'none'; if (!on) return;
+    const p = k(t, l.a - .05, l.a + .12, E.out3); l.d.style.transform = `translateY(${(1 - p) * 20}px)`; l.d.style.opacity = p;
+    l.els.forEach((e, j) => { const w = l.ws[j]; const act = t >= w[0] - .02; e.classList.toggle('cur', t >= w[0] - .02 && t < (l.ws[j + 1] ? l.ws[j + 1][0] : w[1] + .3));
+      const pp = k(t, w[0] - .04, w[0] + .1, E.back); e.style.transform = `scale(${act ? mix(.7, 1, pp) : .7})`; e.style.opacity = act ? 1 : 0; }); });
+}
+
+// ------------------------------------------------ seek
+function show(id, on) { $(id).style.display = on ? 'block' : 'none'; return on; }
+function seek(t) {
+  // ambient dust
+  dust.forEach(o => { const y = ((o.y - t * o.v) % H + H) % H; css(o.d, { transform: `translate(${o.x + Math.sin(t * .8 + o.ph) * 20}px,${y}px)`, opacity: o.o }); });
+
+  // ===== 1. calendar: days roll top -> bottom, land on 7, ring, zoom through
+  if (show('s1', t < T.logo + .05)) {
+    const ent = k(t, 0, .45, E.back);
+    const roll = k(t, .15, 2.45, E.io3);                  // 1 -> 7, decelerating on "jours"
+    const pos = 1 + roll * 6;                             // current day (float)
+    // column order is 7..1 top->bottom; showing day d means offset -(7-d)*470
+    css($('calNums'), { transform: `translateY(${-(7 - pos) * 470}px)`, filter: `blur(${Math.min(10, Math.abs(Math.cos(roll * Math.PI) - 1) * 0) + (roll > .02 && roll < .96 ? 4 * Math.sin(roll * Math.PI) : 0)}px)` });
+    dayEls.forEach((e, i) => e.classList.toggle('on', pos >= i + 1 - .02));
+    const zoom = k(t, 2.95, 3.32, E.in3);
+    const tilt = mix(18, 0, ent);
+    css($('cal'), { transform: `translateY(${(1 - ent) * 300}px) rotateX(${tilt}deg) scale(${mix(.85, 1, ent) * (1 + zoom * 9)})`, transformOrigin: '50% 385px', opacity: clamp(ent * 2) });
+    ringC.setAttribute('stroke-dashoffset', ringLen * (1 - k(t, 2.5, 2.88, E.out3)));
+    $('calRing').style.opacity = 1 - zoom; $('calRing').style.transform = `scale(${1 + zoom * 9})`; $('calRing').style.transformOrigin = '540px 855px';
+  }
+
+  // ===== 2. logo: "Avec Smar Home, c'est possible"
+  if (show('s2', t >= T.logo - .05 && t < T.choose)) {
+    const p = k(t, T.logo, T.logo + .8, E.out5), out = k(t, T.choose - .3, T.choose, E.in3);
+    css($('logo'), { transform: `scale(${mix(1.6, 1, p) * (1 - out * .3)}) rotateY(${mix(-40, 0, p)}deg)`, opacity: p * (1 - out), filter: `blur(${(1 - p) * 14}px)` });
+    const q = k(t, 4.36, 4.75, E.back);
+    css($('possible'), { transform: `translateY(${(1 - q) * 80}px) scale(${mix(.6, 1, q)})`, opacity: clamp(q * 2) * (1 - out) });
+  }
+
+  // ===== 3. carousel
+  if (show('s3', t >= T.choose - .05 && t < T.video + .4)) {
+    const cy = 980;
+    // row position: which card is centred (float index)
+    let f;
+    if (t < T.studio) f = 2.5;                                                  // whole row centred
+    else if (t < T.scroll) f = mix(2.5, 0, k(t, T.studio, T.studio + .7, E.io3));  // "du studio de 13 m²" -> first card
+    else if (t < T.back) f = mix(0, 5, k(t, T.scroll, 12.9, E.io3));            // scroll through everything to 75 m²
+    else f = mix(5, PICK, k(t, T.back, T.click - .15, E.io5));                  // back to the middle one
+    const intro = k(t, T.choose, T.choose + 1.1, E.out3);
+    cards.forEach((c, i) => {
+      const d = i - f, ad = Math.abs(d);
+      const ent = k(t, T.choose + .15 + i * .07, T.choose + .75 + i * .07, E.back);
+      const focus = t >= T.studio ? clamp(1 - ad) : 0;
+      const x = W / 2 + d * SP - 170, y = cy - 280 + (1 - ent) * 500;
+      const s = (t < T.studio ? .74 : mix(1.0, 1.5, focus));
+      const ry = t < T.studio ? 0 : clamp(d, -1.6, 1.6) * -24;
+      css(c, { transform: `translate(${x}px,${y}px) translateZ(${t < T.studio ? 0 : -ad * 120}px) rotateY(${ry + (1 - ent) * 50}deg) scale(${s})`, opacity: clamp(ent * 2) * (t < T.studio ? 1 : clamp(1.4 - ad * .25)), zIndex: 100 - Math.round(ad * 10) });
+      const sel = c.querySelector('.sel'); sel.style.opacity = i === PICK ? k(t, T.click, T.click + .12) : (t >= T.studio && ad < .5 ? .35 : 0);
+    });
+    // when the row is whole (before "studio") squeeze spacing so all six fit
+    if (t < T.studio) cards.forEach((c, i) => { const ent = k(t, T.choose + .15 + i * .07, T.choose + .75 + i * .07, E.back);
+      const x = W / 2 + (i - 2.5) * 178 - 170, y = cy - 280 + (1 - ent) * 500;
+      css(c, { transform: `translate(${x}px,${y}px) rotateY(${(1 - ent) * 50}deg) scale(.52)` }); });
+    const cq = k(t, T.choose, T.choose + .5, E.out5), cout = k(t, T.studio - .2, T.studio + .2, E.in3);
+    css($('choose'), { transform: `translateY(${(1 - cq) * 60 - cout * 40}px)`, opacity: cq * (1 - cout) });
+    // tap + zoom into the chosen card -> video slot
+    const tap = k(t, T.click, T.click + .5, E.out3);
+    css($('tapRing'), { left: (W / 2 - 255 - 72 * tap) + 'px', top: (cy - 420 - 72 * tap) + 'px', width: (510 + 144 * tap) + 'px', height: (840 + 144 * tap) + 'px', opacity: t >= T.click ? (1 - tap) : 0 });
+    const zin = k(t, T.click + .15, T.video + .35, E.in3);
+    $('row').style.transform = `scale(${1 + zin * 2.6})`; $('row').style.transformOrigin = `540px ${cy}px`; $('s3').style.opacity = 1 - k(t, T.video + .05, T.video + .35);
+  }
+
+  // ===== 4. video slot (your falling-module clip)
+  if (show('s4', t >= T.video && t < T.guar)) { const p = k(t, T.video, T.video + .3); $('s4').style.opacity = p * (1 - k(t, T.guar - .2, T.guar)); }
+
+  // ===== 5. guarantee
+  if (show('s5', t >= T.guar - .05 && t < T.photos)) {
+    const out = k(t, T.photos - .25, T.photos, E.in3);
+    css($('gEb'), { opacity: k(t, T.guar, T.guar + .3) * (1 - out), letterSpacing: mix(.6, .32, k(t, T.guar, T.guar + .6)) + 'em' });
+    const shP = $('shP'), shC = $('shC'); const L1 = shP.getTotalLength(), L2 = shC.getTotalLength();
+    shP.setAttribute('stroke-dasharray', L1); shP.setAttribute('stroke-dashoffset', L1 * (1 - k(t, T.guar + .05, T.guar + .9, E.io3)));
+    shC.setAttribute('stroke-dasharray', L2); shC.setAttribute('stroke-dashoffset', L2 * (1 - k(t, 18.2, 18.55, E.out3)));
+    const pop = k(t, 18.2, 18.6, E.back);
+    css($('shield'), { transform: `scale(${1 + (pop - k(t, 18.2, 18.2)) * .0 + Math.sin(clamp((t - 18.2) / .4) * Math.PI) * .06}) rotateY(${Math.sin(t * 1.4) * 10}deg)`, transformOrigin: '540px 640px', opacity: 1 - out });
+    chipEls.forEach((c, i) => { const p = k(t, CH[i][1] - .05, CH[i][1] + .4, E.back); const r = c.getBoundingClientRect();
+      css(c, { transform: `translate(${540 - c.offsetWidth / 2 + (1 - p) * 200}px,${980 + i * 130}px) scale(${mix(.5, 1, p)})`, opacity: clamp(p * 2) * (1 - out) }); });
+  }
+
+  // ===== 6. photo burst
+  if (show('s6', t >= T.photos - .05 && t < T.cta)) {
+    frameEls.forEach((f, i) => { const c = CUTS[i]; const on = t >= c.a && t < c.b; f.style.display = on ? 'flex' : 'none'; if (!on) return;
+      const p = k(t, c.a, c.a + .18, E.out5); f.style.transform = `scale(${mix(1.08, 1, p) + (t - c.a) * .03}) rotate(${(i % 2 ? 1 : -1) * (1 - p) * 2}deg)`; });
+    const g = EQ.find(e => t >= e[1] && t < e[2]) || EQ[3];
+    const lab = $('eqLabel'); if (lab.textContent !== g[0]) lab.textContent = g[0];
+    const p = k(t, g[1], g[1] + .25, E.back); css(lab, { transform: `translateY(${(1 - p) * 50}px) scale(${mix(.7, 1, p)})`, opacity: clamp(p * 2) * (1 - k(t, T.cta - .2, T.cta)), color: g[0] === 'Tout est déjà là' ? '#f3ba25' : '#f7f2ea' });
+  }
+
+  // ===== 7. CTA
+  if (show('s7', t >= T.cta - .05)) {
+    const a = k(t, 25.44, 25.8, E.back), b = k(t, 26.3, 26.7, E.back);
+    css($('q1'), { transform: `scale(${mix(.6, 1, a)})`, opacity: clamp(a * 2) });
+    css($('q2'), { transform: `scale(${mix(.6, 1, b)})`, opacity: clamp(b * 2) });
+    const l = k(t, 26.9, 27.6, E.out5); css($('logo2'), { transform: `scale(${mix(.7, 1, l)})`, opacity: l });
+    const c = k(t, 27.3, 27.8, E.back), CLICK = 28.5;
+    const press = t > CLICK - .08 && t < CLICK + .25 ? (t < CLICK ? 1 - .08 * k(t, CLICK - .08, CLICK) : .92 + .08 * k(t, CLICK, CLICK + .25, E.back)) : 1;
+    const breathe = t > CLICK + .3 ? 1 + .03 * Math.sin((t - CLICK) * 6) : 1;
+    const ce = $('cta'), cw = ce.offsetWidth, chh = ce.offsetHeight, cx = 540 - cw / 2, cyy = 1290;
+    css(ce, { transform: `translate(${cx}px,${cyy}px) scale(${c * press * breathe})`, opacity: clamp(c * 3) });
+    const d = k(t, CLICK, CLICK + .8); css($('ctaRip'), { left: cx - d * 40 + 'px', top: cyy - d * 40 + 'px', width: cw + d * 80 + 'px', height: chh + d * 80 + 'px', opacity: t >= CLICK ? 1 - d : 0 });
+    if (t > 27.6) { const m = k(t, 27.6, CLICK - .05, E.io3); css($('cursor'), { opacity: 1, transform: `translate(${mix(950, cx + cw * .72, m)}px,${mix(1700, cyy + chh * .55, m)}px) scale(${2.4 * press})` }); } else $('cursor').style.opacity = 0;
+  }
+
+  updSubs(t);
+  let f = 0; for (const tc of [T.logo, T.photos, T.cta]) if (t >= tc) f = Math.max(f, .5 * (1 - k(t, tc, tc + .25)));
+  CUTS.forEach(c => { if (t >= c.a && t < c.a + .1) f = Math.max(f, .35 * (1 - (t - c.a) / .1)); });
+  $('flash').style.opacity = f;
+}
+window.seek = seek;
+window.ready = (async () => { WORDS = await (await fetch('audio/words_montee.json')).json(); SUBL = buildSubs(); await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))); seek(0); return true; })();
+</script>
+</body>
+</html>
