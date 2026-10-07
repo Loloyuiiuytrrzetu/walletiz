@@ -1,0 +1,6 @@
+tmp/
+stills/
+ref2/*.mp4
+*.wav
+chk.png
+sheet_*.png
