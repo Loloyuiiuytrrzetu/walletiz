@@ -10,11 +10,11 @@ const p = await b.newPage({ viewport: { width: 1080, height: 1920 } });
 p.on('pageerror', e => console.error('PAGEERR', e.message));
 await p.goto(`http://localhost:${srv.address().port}/motion.html`); await p.evaluate(() => window.ready);
 if (mode === 'frames') {
-  for (const [i, t] of times.split(',').entries()) { await p.evaluate(t => seek(t), +t); await p.screenshot({ path: outPath.replace('%d', i) }); }
+  for (const [i, t] of times.split(',').entries()) { await p.evaluate(async t => { seek(t); await settle(); }, +t); await p.screenshot({ path: outPath.replace('%d', i) }); }
 } else {
   const FPS = 30, N = Math.round(29.5 * FPS);
   const ff = spawn('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-pix_fmt', 'yuv420p', outPath], { stdio: ['pipe', 'inherit', 'inherit'] });
-  for (let i = 0; i < N; i++) { await p.evaluate(t => seek(t), i / FPS); const buf = await p.screenshot({ type: 'jpeg', quality: 95 });
+  for (let i = 0; i < N; i++) { await p.evaluate(async t => { seek(t); await settle(); }, i / FPS); const buf = await p.screenshot({ type: 'jpeg', quality: 95 });
     if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r)); }
   ff.stdin.end(); await new Promise(r => ff.on('close', r));
 }
